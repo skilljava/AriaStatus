@@ -10,17 +10,21 @@
 
     <style>
         :root {
-            /* رنگ‌های تم */
-            --bg-dark: #0a0a0c;
-            --bg-glass: rgba(255, 255, 255, 0.05);
-            --border-glass: rgba(255, 255, 255, 0.1);
+            /* رنگ‌های تم نارنجی/طلایی */
+            --bg-dark: #0f0a05; /* پس‌زمینه تیره مایل به قهوه‌ای/نارنجی */
+            --bg-glass: rgba(255, 200, 100, 0.05); /* شیشه با ته رنگ طلایی */
+            --border-glass: rgba(255, 200, 100, 0.15); /* حاشیه شیشه با ته رنگ طلایی */
             --blur-glass: 15px;
             --text-main: #ffffff;
-            --text-sec: #a0a0a0;
-            --color-online: #3db874; /* سبز روشن */
-            --color-offline: #ff5252; /* قرمز */
-            --color-maintenance: #ffc107; /* زرد/نارنجی */
-            --color-accent: #007bff; /* آبی برای آیکون‌ها و لینک‌ها */
+            --text-sec: #e0e0e0; /* روشن‌تر برای خوانایی */
+            
+            --color-online: #4CAF50; /* سبز ملایم برای آنلاین */
+            --color-offline: #FF7043; /* نارنجی-قرمز برای آفلاین */
+            --color-maintenance: #FFCA28; /* طلایی روشن برای نگهداری */
+            --color-accent: #FFA726; /* نارنجی پررنگ و برجسته */
+            
+            --color-gradient-start: #ff7e5f; /* گرادیان پس‌زمینه */
+            --color-gradient-end: #feb47b; /* گرادیان پس‌زمینه */
         }
 
         * {
@@ -37,7 +41,7 @@
             line-height: 1.6;
             padding: 20px;
             min-height: 100vh;
-            background-image: radial-gradient(circle at 50% 10%, #1a0505 0%, #0a0a0c 100%);
+            background-image: radial-gradient(circle at 50% 10%, #20150d 0%, var(--bg-dark) 100%);
         }
 
         .container {
@@ -52,8 +56,8 @@
             -webkit-backdrop-filter: blur(var(--blur-glass));
             border: 1px solid var(--border-glass);
             border-radius: 15px;
-            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
-            overflow: hidden; /* برای جلوگیری از سرریز جدول */
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.4); /* سایه کمی تیره‌تر */
+            overflow: hidden; 
         }
 
         /* --- هدر و آمار کلی --- */
@@ -90,6 +94,7 @@
 
         .stat-item i {
             font-size: 1.2rem;
+            color: var(--color-accent); /* آیکون‌ها به رنگ accent */
         }
 
         .status-dot {
@@ -118,11 +123,11 @@
 
         .server-table th {
             padding: 15px 10px;
-            color: var(--text-sec);
-            font-weight: 500;
+            color: var(--text-main); /* رنگ تایتل‌ها سفید */
+            font-weight: 600; /* کمی پررنگ‌تر */
             position: sticky;
             top: 0;
-            background: rgba(10, 10, 12, 0.8); /* برای حالت چسبندگی */
+            background: rgba(15, 10, 5, 0.8); /* پس‌زمینه تیره برای sticky */
             backdrop-filter: blur(5px);
             z-index: 10;
             border-bottom: 1px solid var(--border-glass);
@@ -131,14 +136,15 @@
 
         .server-table td {
             padding: 15px 10px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08); /* خطوط جداکننده کمی پررنگ‌تر */
             vertical-align: middle;
-            transition: all 0.5s ease; /* برای انیمیشن تغییرات */
+            transition: all 0.5s ease; 
             white-space: nowrap;
+            color: var(--text-sec); /* متن سلول‌ها */
         }
 
         .server-table tr:hover {
-            background-color: rgba(255, 255, 255, 0.02);
+            background-color: rgba(255, 167, 38, 0.05); /* هاور با ته رنگ نارنجی */
         }
         
         /* ستون وضعیت */
@@ -154,28 +160,6 @@
         .status-online { color: var(--color-online); }
         .status-offline { color: var(--color-offline); }
         .status-maintenance { color: var(--color-maintenance); }
-
-        /* نمودار کوچک شبیه سازی شده */
-        .sparkline {
-            width: 80px;
-            height: 20px;
-            background: repeating-linear-gradient(
-                to left,
-                var(--color-online), var(--color-online) 5px,
-                rgba(255, 255, 255, 0.1) 5px, rgba(255, 255, 255, 0.1) 6px
-            );
-            border-radius: 3px;
-            opacity: 0.7;
-            margin: 0 auto;
-        }
-        
-        .sparkline-offline {
-            background: repeating-linear-gradient(
-                to left,
-                var(--color-offline), var(--color-offline) 5px,
-                rgba(255, 255, 255, 0.1) 5px, rgba(255, 255, 255, 0.1) 6px
-            );
-        }
 
         /* ریسپانسیو برای موبایل */
         @media (max-width: 768px) {
@@ -199,7 +183,6 @@
 
             .server-table {
                 font-size: 0.8rem;
-                /* اجبار به داشتن فضای کافی در موبایل */
                 min-width: 800px; 
             }
         }
@@ -234,7 +217,7 @@
                         <th><i class="fa-solid fa-server"></i> نام سرور</th>
                         <th style="text-align: center;">وضعیت</th>
                         <th><i class="fa-solid fa-gauge-high"></i> آپتایم</th>
-                        <th style="text-align: center;"><i class="fa-solid fa-chart-simple"></i> کاربران آنلاین</th>
+                        <th style="text-align: center;"><i class="fa-solid fa-users"></i> کاربران آنلاین</th>
                         <th><i class="fa-solid fa-clock"></i> آخرین آپدیت</th>
                         <th><i class="fa-solid fa-globe"></i> کشور</th>
                         <th><i class="fa-solid fa-microchip"></i> CPU</th>
@@ -247,7 +230,7 @@
         </div>
         
         <p style="text-align: center; color: var(--text-sec); font-size: 0.8rem; margin-top: 20px;">
-            <i class="fa-solid fa-wand-magic-sparkles"></i>
+            <i class="fa-solid fa-wand-magic-sparkles" style="color: var(--color-accent);"></i>
             وضعیت‌ها و آمار شبیه‌سازی شده و هر <span id="update-interval-display"></span> دقیقه به صورت خودکار به‌روزرسانی می‌شوند.
         </p>
 
@@ -335,7 +318,6 @@
                     ram: RAMS[Math.floor(Math.random() * RAMS.length)],
                     onlineUsers: Math.floor(Math.random() * 100), // 0 تا 99 کاربر
                     lastUpdateMinutes: Math.floor(Math.random() * 10), // 0 تا 10 دقیقه
-                    sparklineData: Array(10).fill(1).map(() => Math.random() < 0.9 ? 1 : 0) // شبیه سازی تاریخچه
                 });
             }
             updateTable(); // اولین رندر
@@ -377,9 +359,6 @@
                         break;
                 }
                 
-                // شبیه سازی نمودار کوچک آپتایم
-                const sparklineClass = server.status === 'Offline' ? 'sparkline-offline' : '';
-
                 const row = tbody.insertRow();
                 row.innerHTML = `
                     <td>${server.icon} ${server.name}</td>
