@@ -281,7 +281,7 @@
 
     </div>
 
-    <script>
+<script>
         // --- تنظیمات و متغیرهای اصلی ---
         const SERVER_COUNT = 120;
         const UPDATE_INTERVAL = 30 * 60 * 1000; // 30 دقیقه بر حسب میلی‌ثانیه
@@ -305,7 +305,7 @@
         const STATUS_WEIGHTS = { 'Online': 80, 'Offline': 10, 'Maintenance': 10 };
 
         let servers = [];
-        let currentFilter = 'ALL'; // فیلتر پیش‌فرض
+        let currentFilter = 'ALL'; 
 
         // --- توابع کمکی ---
 
@@ -329,14 +329,12 @@
         }
 
         function generateServerName(index) {
-            // منطق تولید نام سرور (برای ثابت نگه داشتن)
             const group = Math.floor(index / 30) + 1;
             const number = (index % 30) + 1;
             return `IR-SV${group}-${number}`;
         }
 
         function generatePing(location) {
-            // تولید پینگ بر اساس بازه مکانی
             const [min, max] = location.pingRange;
             return Math.floor(Math.random() * (max - min + 1)) + min;
         }
@@ -385,10 +383,11 @@
                     icon: location.icon,
                     status: status,
                     uptime: initialUptime.toFixed(3),
-                    ping: generatePing(location), // پینگ اولیه
+                    ping: generatePing(location),
                     cpu: CPUS[Math.floor(Math.random() * CPUS.length)],
                     ram: RAMS[Math.floor(Math.random() * RAMS.length)],
-                    onlineUsers: Math.floor(Math.random() * 100),
+                    // 👈 **تغییر اعمال شده برای کاربران آنلاین**
+                    onlineUsers: Math.floor(Math.random() * 35), // حداکثر 34 کاربر
                     lastUpdateMinutes: 0, 
                 });
             }
@@ -523,15 +522,21 @@
 
 
                 // 3. تغییرات کاربران آنلاین و پینگ
-                let userChange = Math.floor(Math.random() * 10) - 4; 
+                let userChange = Math.floor(Math.random() * 10) - 4; // نوسان بین -4 تا +5
                 server.onlineUsers = Math.max(0, server.onlineUsers + userChange);
+                
+                // **تضمین حفظ تعداد کاربران زیر 40**
+                if (server.onlineUsers > 40) {
+                     server.onlineUsers = 35 + Math.floor(Math.random() * 5); // حداکثر 40
+                }
+                
                 if (server.status !== 'Online') server.onlineUsers = Math.floor(server.onlineUsers * 0.8); 
                 
                 // نوسان پینگ
                 const loc = ALL_LOCATIONS.find(l => l.code === server.code);
                 if (loc) {
                     const [min, max] = loc.pingRange;
-                    let pingChange = Math.floor(Math.random() * 10) - 5; // نوسان 
+                    let pingChange = Math.floor(Math.random() * 10) - 5; 
                     server.ping = Math.min(max, Math.max(min, server.ping + pingChange));
                 }
                 
@@ -569,13 +574,13 @@
                     return; 
                 }
             } else {
-                // تولید داده جدید (ثبات نام سرورها تضمین شد)
+                // تولید داده جدید
                 servers = generateNewServers();
                 saveServerState();
             }
 
             // رندر اولیه و تنظیم تایمر
-            setupFilterNav(); // راه‌اندازی نوار فیلتر
+            setupFilterNav(); 
             updateTable();
             
             const remainingMinutes = Math.ceil(timeToNextUpdate / 60000);
