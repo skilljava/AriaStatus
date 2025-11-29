@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AriaCloud Status | وضعیت سرورها</title>
+    
+    <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet" type="text/css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            /* رنگ‌های تم */
+            --bg-dark: #0a0a0c;
+            --bg-glass: rgba(255, 255, 255, 0.05);
+            --border-glass: rgba(255, 255, 255, 0.1);
+            --blur-glass: 15px;
+            --text-main: #ffffff;
+            --text-sec: #a0a0a0;
+            --color-online: #3db874; /* سبز روشن */
+            --color-offline: #ff5252; /* قرمز */
+            --color-maintenance: #ffc107; /* زرد/نارنجی */
+            --color-accent: #007bff; /* آبی برای آیکون‌ها و لینک‌ها */
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Vazirmatn', sans-serif;
+            transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            line-height: 1.6;
+            padding: 20px;
+            min-height: 100vh;
+            background-image: radial-gradient(circle at 50% 10%, #1a0505 0%, #0a0a0c 100%);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* --- استایل‌های Glassmorphism --- */
+        .glass {
+            background: var(--bg-glass);
+            backdrop-filter: blur(var(--blur-glass));
+            -webkit-backdrop-filter: blur(var(--blur-glass));
+            border: 1px solid var(--border-glass);
+            border-radius: 15px;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+            overflow: hidden; /* برای جلوگیری از سرریز جدول */
+        }
+
+        /* --- هدر و آمار کلی --- */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+            margin-bottom: 20px;
+        }
+
+        .logo {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--text-main);
+        }
+
+        .logo span {
+            color: var(--color-accent);
+        }
+
+        .stats-summary {
+            display: flex;
+            gap: 25px;
+            font-size: 0.9rem;
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-sec);
+        }
+
+        .stat-item i {
+            font-size: 1.2rem;
+        }
+
+        .status-dot {
+            height: 10px;
+            width: 10px;
+            border-radius: 50%;
+            display: inline-block;
+            transition: background-color 0.5s ease;
+        }
+
+        .online-dot { background-color: var(--color-online); }
+        .offline-dot { background-color: var(--color-offline); }
+        .maintenance-dot { background-color: var(--color-maintenance); }
+
+        /* --- جدول وضعیت سرور --- */
+        .server-table-wrapper {
+            padding: 10px;
+        }
+
+        .server-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+            text-align: right;
+        }
+
+        .server-table th {
+            padding: 15px 10px;
+            color: var(--text-sec);
+            font-weight: 500;
+            position: sticky;
+            top: 0;
+            background: rgba(10, 10, 12, 0.8); /* برای حالت چسبندگی */
+            backdrop-filter: blur(5px);
+            z-index: 10;
+            border-bottom: 1px solid var(--border-glass);
+            white-space: nowrap;
+        }
+
+        .server-table td {
+            padding: 15px 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            vertical-align: middle;
+            transition: all 0.5s ease; /* برای انیمیشن تغییرات */
+            white-space: nowrap;
+        }
+
+        .server-table tr:hover {
+            background-color: rgba(255, 255, 255, 0.02);
+        }
+        
+        /* ستون وضعیت */
+        .status-cell {
+            font-weight: 600;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+
+        .status-online { color: var(--color-online); }
+        .status-offline { color: var(--color-offline); }
+        .status-maintenance { color: var(--color-maintenance); }
+
+        /* نمودار کوچک شبیه سازی شده */
+        .sparkline {
+            width: 80px;
+            height: 20px;
+            background: repeating-linear-gradient(
+                to left,
+                var(--color-online), var(--color-online) 5px,
+                rgba(255, 255, 255, 0.1) 5px, rgba(255, 255, 255, 0.1) 6px
+            );
+            border-radius: 3px;
+            opacity: 0.7;
+            margin: 0 auto;
+        }
+        
+        .sparkline-offline {
+            background: repeating-linear-gradient(
+                to left,
+                var(--color-offline), var(--color-offline) 5px,
+                rgba(255, 255, 255, 0.1) 5px, rgba(255, 255, 255, 0.1) 6px
+            );
+        }
+
+        /* ریسپانسیو برای موبایل */
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .logo {
+                margin-bottom: 15px;
+            }
+
+            .stats-summary {
+                flex-wrap: wrap;
+                gap: 15px;
+            }
+
+            .server-table-wrapper {
+                overflow-x: auto;
+            }
+
+            .server-table {
+                font-size: 0.8rem;
+                /* اجبار به داشتن فضای کافی در موبایل */
+                min-width: 800px; 
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="header">
+            <h1 class="logo">Aria<span>Cloud</span> Status</h1>
+            
+            <div class="stats-summary">
+                <div class="stat-item">
+                    <span id="stat-total-servers"></span> سرور 
+                </div>
+                <div class="stat-item">
+                    <span class="status-dot online-dot"></span> <span id="stat-online-count"></span> آنلاین
+                </div>
+                <div class="stat-item">
+                    <span class="status-dot offline-dot"></span> <span id="stat-offline-count"></span> آفلاین
+                </div>
+                <div class="stat-item">
+                    <span class="status-dot maintenance-dot"></span> <span id="stat-maintenance-count"></span> نگهداری
+                </div>
+            </div>
+        </div>
+        
+        <div class="glass server-table-wrapper">
+            <table class="server-table">
+                <thead>
+                    <tr>
+                        <th><i class="fa-solid fa-server"></i> نام سرور</th>
+                        <th style="text-align: center;">وضعیت</th>
+                        <th><i class="fa-solid fa-gauge-high"></i> آپتایم</th>
+                        <th style="text-align: center;"><i class="fa-solid fa-chart-simple"></i> کاربران آنلاین</th>
+                        <th><i class="fa-solid fa-clock"></i> آخرین آپدیت</th>
+                        <th><i class="fa-solid fa-globe"></i> کشور</th>
+                        <th><i class="fa-solid fa-microchip"></i> CPU</th>
+                        <th><i class="fa-solid fa-memory"></i> رم</th>
+                    </tr>
+                </thead>
+                <tbody id="server-list-body">
+                    </tbody>
+            </table>
+        </div>
+        
+        <p style="text-align: center; color: var(--text-sec); font-size: 0.8rem; margin-top: 20px;">
+            <i class="fa-solid fa-wand-magic-sparkles"></i>
+            وضعیت‌ها و آمار شبیه‌سازی شده و هر <span id="update-interval-display"></span> دقیقه به صورت خودکار به‌روزرسانی می‌شوند.
+        </p>
+
+    </div>
+
+    <script>
+        // --- تنظیمات و متغیرهای اصلی ---
+        const SERVER_COUNT = 120; // بیش از 100 سرور
+        const UPDATE_INTERVAL_MIN = 3 * 60 * 1000; // 3 دقیقه بر حسب میلی‌ثانیه
+        const UPDATE_INTERVAL_MAX = 6 * 60 * 1000; // 6 دقیقه بر حسب میلی‌ثانیه
+        const INITIAL_LOCATIONS = [
+            { name: 'ایران', icon: '🇮🇷', weight: 60 },
+            { name: 'آلمان', icon: '🇩🇪', weight: 20 },
+            { name: 'فرانسه', icon: '🇫🇷', weight: 10 },
+            { name: 'فنلاند', icon: '🇫🇮', weight: 10 }
+        ];
+        const CPUS = ['Ryzen 9 7950X3D', 'Intel Xeon Gold 6338', 'Ryzen 7 5800X', 'Intel i9 13900K'];
+        const RAMS = ['32GB DDR5', '64GB DDR4', '128GB DDR5'];
+        const STATUSES = ['Online', 'Offline', 'Maintenance'];
+        // توزیع وضعیت: 80% آنلاین، 10% آفلاین، 10% نگهداری
+        const STATUS_WEIGHTS = { 'Online': 80, 'Offline': 10, 'Maintenance': 10 };
+
+        let servers = [];
+
+        // --- توابع کمکی ---
+
+        function getRandomItemByWeight(weights) {
+            const totalWeight = Object.values(weights).reduce((sum, w) => sum + w, 0);
+            let randomNum = Math.random() * totalWeight;
+
+            for (const status in weights) {
+                randomNum -= weights[status];
+                if (randomNum <= 0) return status;
+            }
+        }
+
+        function getRandomLocation() {
+            const totalWeight = INITIAL_LOCATIONS.reduce((sum, loc) => sum + loc.weight, 0);
+            let randomNum = Math.random() * totalWeight;
+
+            for (const loc of INITIAL_LOCATIONS) {
+                randomNum -= loc.weight;
+                if (randomNum <= 0) return loc;
+            }
+        }
+
+        function generateServerName(index) {
+            // ایجاد نام شبیه سازی شده IR-SV{1-4}-{1-30}
+            const group = Math.floor(index / 30) + 1;
+            const number = (index % 30) + 1;
+            return `IR-SV${group}-${number}`;
+        }
+
+        function generateRandomTimeAgo(minutes) {
+            // شبیه سازی زمان آخرین آپدیت
+            const hours = Math.floor(minutes / 60);
+            const remainingMinutes = minutes % 60;
+
+            if (hours > 0) return `${hours} ساعت و ${remainingMinutes} دقیقه پیش`;
+            if (remainingMinutes > 1) return `${remainingMinutes} دقیقه پیش`;
+            return `چند لحظه پیش`;
+        }
+        
+        // --- تولید داده‌های اولیه سرورها ---
+
+        function initializeServers() {
+            for (let i = 0; i < SERVER_COUNT; i++) {
+                const status = getRandomItemByWeight(STATUS_WEIGHTS);
+                const location = getRandomLocation();
+                
+                let initialUptime = 99.5 + (Math.random() * 0.4); // 99.5% تا 99.9%
+                if (status === 'Offline' || status === 'Maintenance') {
+                    // سرورهای آفلاین/نگهداری آپتایم کمتری دارند
+                    initialUptime = 98.0 + (Math.random() * 1.5);
+                }
+
+                servers.push({
+                    id: i,
+                    name: generateServerName(i),
+                    location: location.name,
+                    icon: location.icon,
+                    status: status,
+                    uptime: initialUptime.toFixed(3),
+                    cpu: CPUS[Math.floor(Math.random() * CPUS.length)],
+                    ram: RAMS[Math.floor(Math.random() * RAMS.length)],
+                    onlineUsers: Math.floor(Math.random() * 100), // 0 تا 99 کاربر
+                    lastUpdateMinutes: Math.floor(Math.random() * 10), // 0 تا 10 دقیقه
+                    sparklineData: Array(10).fill(1).map(() => Math.random() < 0.9 ? 1 : 0) // شبیه سازی تاریخچه
+                });
+            }
+            updateTable(); // اولین رندر
+        }
+
+        // --- رندر جدول و آمار کلی ---
+
+        function updateTable() {
+            const tbody = document.getElementById('server-list-body');
+            tbody.innerHTML = '';
+            
+            let onlineCount = 0;
+            let offlineCount = 0;
+            let maintenanceCount = 0;
+            
+            servers.forEach(server => {
+                let statusText = '';
+                let statusClass = '';
+                let dotClass = '';
+                
+                switch (server.status) {
+                    case 'Online':
+                        statusText = 'آنلاین';
+                        statusClass = 'status-online';
+                        dotClass = 'online-dot';
+                        onlineCount++;
+                        break;
+                    case 'Offline':
+                        statusText = 'آفلاین';
+                        statusClass = 'status-offline';
+                        dotClass = 'offline-dot';
+                        offlineCount++;
+                        break;
+                    case 'Maintenance':
+                        statusText = 'تعمیر و نگهداری';
+                        statusClass = 'status-maintenance';
+                        dotClass = 'maintenance-dot';
+                        maintenanceCount++;
+                        break;
+                }
+                
+                // شبیه سازی نمودار کوچک آپتایم
+                const sparklineClass = server.status === 'Offline' ? 'sparkline-offline' : '';
+
+                const row = tbody.insertRow();
+                row.innerHTML = `
+                    <td>${server.icon} ${server.name}</td>
+                    <td class="status-cell ${statusClass}"><span class="status-dot ${dotClass}"></span> ${statusText}</td>
+                    <td>${server.uptime}%</td>
+                    <td style="text-align: center;">${server.onlineUsers}</td>
+                    <td>${generateRandomTimeAgo(server.lastUpdateMinutes)}</td>
+                    <td>${server.location}</td>
+                    <td>${server.cpu}</td>
+                    <td>${server.ram}</td>
+                `;
+            });
+            
+            // به‌روزرسانی آمار کلی
+            document.getElementById('stat-total-servers').textContent = SERVER_COUNT;
+            document.getElementById('stat-online-count').textContent = onlineCount;
+            document.getElementById('stat-offline-count').textContent = offlineCount;
+            document.getElementById('stat-maintenance-count').textContent = maintenanceCount;
+        }
+
+        // --- شبیه‌سازی رفتار طبیعی سرورها (منطق اصلی) ---
+
+        function simulateNaturalUpdate() {
+            servers.forEach(server => {
+                
+                // 1. تغییر وضعیت تصادفی و نادر (برای طبیعی جلوه دادن)
+                const randStatusChange = Math.random();
+                if (randStatusChange < 0.005) { // 0.5% احتمال تغییر وضعیت در هر آپدیت
+                    if (server.status === 'Online') {
+                        server.status = Math.random() < 0.5 ? 'Offline' : 'Maintenance';
+                    } else if (server.status === 'Offline' || server.status === 'Maintenance') {
+                        // 10% احتمال برگشت به آنلاین
+                        server.status = Math.random() < 0.1 ? 'Online' : server.status;
+                    }
+                }
+                
+                // 2. تغییرات جزئی آپتایم
+                let uptimeFloat = parseFloat(server.uptime);
+                if (server.status === 'Online') {
+                    // افزایش بسیار جزئی و طبیعی آپتایم
+                    uptimeFloat += (Math.random() * 0.001) - 0.0005; // نوسان بین -0.0005 تا +0.0005
+                    if (uptimeFloat > 99.999) uptimeFloat = 99.999;
+                } else {
+                    // کاهش جزئی آپتایم برای سرورهای آفلاین/نگهداری
+                    uptimeFloat -= Math.random() * 0.01;
+                    if (uptimeFloat < 95.0) uptimeFloat = 95.0 + (Math.random() * 0.1); // حداقل 95%
+                }
+                server.uptime = uptimeFloat.toFixed(3);
+
+
+                // 3. تغییرات کاربران آنلاین
+                let userChange = Math.floor(Math.random() * 5) - 2; // نوسان بین -2 تا +2
+                server.onlineUsers = Math.max(0, server.onlineUsers + userChange);
+                if (server.status !== 'Online') server.onlineUsers = Math.floor(server.onlineUsers * 0.5); // کاهش شدید کاربران اگر آفلاین است
+                
+                
+                // 4. به‌روزرسانی زمان
+                server.lastUpdateMinutes = Math.floor(Math.random() * 1); // شبیه سازی آخرین آپدیت "چند لحظه پیش"
+            });
+
+            // پس از به‌روزرسانی داده‌ها، جدول را رندر کن
+            updateTable(); 
+
+            // تنظیم تایمر برای آپدیت بعدی با بازه زمانی تصادفی
+            setRandomInterval();
+        }
+
+        function setRandomInterval() {
+            // تعیین بازه زمانی تصادفی بین 3 تا 6 دقیقه
+            const interval = Math.floor(Math.random() * (UPDATE_INTERVAL_MAX - UPDATE_INTERVAL_MIN + 1)) + UPDATE_INTERVAL_MIN;
+            
+            // نمایش بازه زمانی در فوتر
+            document.getElementById('update-interval-display').textContent = `${Math.floor(interval / 60000)} دقیقه`;
+
+            // پاک کردن تایمر قبلی و تنظیم تایمر جدید
+            if (window.updateTimer) {
+                clearTimeout(window.updateTimer);
+            }
+            window.updateTimer = setTimeout(simulateNaturalUpdate, interval);
+        }
+
+        // --- شروع کار ---
+        window.onload = () => {
+            initializeServers();
+            setRandomInterval(); // شروع چرخه آپدیت‌های تصادفی
+        };
+    </script>
+
+</body>
+</html>
