@@ -15,7 +15,6 @@
 
     <style>
         :root {
-            /* رنگ‌های تم نارنجی/طلایی */
             --bg-dark: #0f0a05; 
             --bg-glass: rgba(255, 200, 100, 0.05); 
             --border-glass: rgba(255, 200, 100, 0.15); 
@@ -23,14 +22,14 @@
             --text-main: #ffffff;
             --text-sec: #e0e0e0; 
             
-            --color-online: #4CAF50; /* سبز ملایم برای آنلاین */
-            --color-offline: #FF7043; /* نارنجی-قرمز برای آفلاین */
-            --color-maintenance: #FFCA28; /* طلایی روشن برای نگهداری */
-            --color-accent: #FFA726; /* نارنجی پررنگ و برجسته */
+            --color-online: #4CAF50; 
+            --color-offline: #FF7043; 
+            --color-maintenance: #FFCA28; 
+            --color-accent: #FFA726; 
             
-            --ping-low: #4CAF50; /* پینگ خوب: سبز */
-            --ping-medium: #FFCA28; /* پینگ متوسط: طلایی */
-            --ping-high: #FF7043; /* پینگ بالا: نارنجی */
+            --ping-low: #4CAF50; 
+            --ping-medium: #FFCA28; 
+            --ping-high: #FF7043; 
         }
 
         * {
@@ -55,7 +54,6 @@
             margin: 0 auto;
         }
 
-        /* --- استایل‌های Glassmorphism --- */
         .glass {
             background: var(--bg-glass);
             backdrop-filter: blur(var(--blur-glass));
@@ -66,7 +64,6 @@
             overflow: hidden; 
         }
         
-        /* --- نوار فیلتر کشورها --- */
         .country-filter-nav {
             margin-bottom: 25px;
             padding: 10px;
@@ -97,7 +94,7 @@
 
         .country-filter-nav button.active {
             background-color: var(--color-accent);
-            color: var(--bg-dark); /* متن تیره روی پس‌زمینه نارنجی */
+            color: var(--bg-dark); 
             border-color: var(--color-accent);
             font-weight: 700;
         }
@@ -106,7 +103,6 @@
             font-size: 1.2rem;
         }
 
-        /* --- هدر و آمار کلی --- */
         .header {
             display: flex;
             justify-content: space-between;
@@ -150,7 +146,6 @@
         .offline-dot { background-color: var(--color-offline); }
         .maintenance-dot { background-color: var(--color-maintenance); }
 
-        /* --- جدول وضعیت سرور --- */
         .server-table-wrapper {
             padding: 10px;
         }
@@ -188,7 +183,6 @@
             background-color: rgba(255, 167, 38, 0.05); 
         }
         
-        /* ستون وضعیت */
         .status-cell {
             font-weight: 600;
             text-align: center;
@@ -202,12 +196,10 @@
         .status-offline { color: var(--color-offline); }
         .status-maintenance { color: var(--color-maintenance); }
 
-        /* نمایش پینگ با رنگ */
         .ping-low { color: var(--ping-low); font-weight: 600; }
         .ping-medium { color: var(--ping-medium); font-weight: 600; }
         .ping-high { color: var(--ping-high); font-weight: 600; }
 
-        /* ریسپانسیو برای موبایل */
         @media (max-width: 768px) {
             .header {
                 flex-direction: column;
@@ -257,7 +249,7 @@
         </div>
         
         <div class="glass country-filter-nav" id="country-filter-nav">
-            </div>
+        </div>
 
         <div class="glass server-table-wrapper">
             <table class="server-table">
@@ -275,7 +267,7 @@
                     </tr>
                 </thead>
                 <tbody id="server-list-body">
-                    </tbody>
+                </tbody>
             </table>
         </div>
         
@@ -287,12 +279,10 @@
     </div>
 
 <script>
-        // --- تنظیمات و متغیرهای اصلی ---
         const SERVER_COUNT = 120;
-        const UPDATE_INTERVAL = 30 * 60 * 1000; // 30 دقیقه بر حسب میلی‌ثانیه
+        const UPDATE_INTERVAL = 30 * 60 * 1000;
         const SERVER_DATA_KEY = 'ariaCloudServerData';
         
-        // لیست کامل کشورها با پینگ شبیه‌سازی شده
         const ALL_LOCATIONS = [
             { name: 'ایران', code: 'IR', icon: '🇮🇷', weight: 40, pingRange: [15, 40] },
             { name: 'فرانسه', code: 'FR', icon: '🇫🇷', weight: 10, pingRange: [120, 180] },
@@ -311,8 +301,6 @@
 
         let servers = [];
         let currentFilter = 'ALL'; 
-
-        // --- توابع کمکی ---
 
         function getRandomItemByWeight(weights) {
             const totalWeight = Object.values(weights).reduce((sum, w) => sum + w, 0);
@@ -358,8 +346,6 @@
             return `چند لحظه پیش`;
         }
         
-        // --- مدیریت Persistence ---
-
         function saveServerState() {
             const dataToPersist = {
                 servers: servers,
@@ -368,7 +354,6 @@
             localStorage.setItem(SERVER_DATA_KEY, JSON.stringify(dataToPersist));
         }
 
-        // --- تولید داده‌های جدید (فقط یک بار اجرا می‌شود) ---
         function generateNewServers() {
             const newServers = [];
             for (let i = 0; i < SERVER_COUNT; i++) {
@@ -391,15 +376,12 @@
                     ping: generatePing(location),
                     cpu: CPUS[Math.floor(Math.random() * CPUS.length)],
                     ram: RAMS[Math.floor(Math.random() * RAMS.length)],
-                    // 👈 **تغییر اعمال شده برای کاربران آنلاین**
-                    onlineUsers: Math.floor(Math.random() * 35), // حداکثر 34 کاربر
+                    onlineUsers: Math.floor(Math.random() * 35), 
                     lastUpdateMinutes: 0, 
                 });
             }
             return newServers;
         }
-
-        // --- رندر جدول و آمار کلی ---
 
         function updateTable() {
             const tbody = document.getElementById('server-list-body');
@@ -453,26 +435,21 @@
                 `;
             });
             
-            // به‌روزرسانی آمار کلی
             document.getElementById('stat-total-servers').textContent = SERVER_COUNT;
             document.getElementById('stat-online-count').textContent = onlineCount;
             document.getElementById('stat-offline-count').textContent = offlineCount;
             document.getElementById('stat-maintenance-count').textContent = maintenanceCount;
         }
 
-        // --- نوار فیلتر و رویدادها ---
-
         function setupFilterNav() {
             const nav = document.getElementById('country-filter-nav');
             
-            // دکمه "همه"
             const allButton = document.createElement('button');
             allButton.textContent = 'همه سرورها';
             allButton.classList.add('active');
             allButton.onclick = () => filterServers('ALL');
             nav.appendChild(allButton);
             
-            // دکمه‌های کشورها
             ALL_LOCATIONS.forEach(loc => {
                 const button = document.createElement('button');
                 button.innerHTML = `<span class="country-flag">${loc.icon}</span> ${loc.name}`;
@@ -484,12 +461,10 @@
         function filterServers(countryCode) {
             currentFilter = countryCode;
             
-            // به‌روزرسانی وضعیت دکمه‌های فعال
             document.querySelectorAll('.country-filter-nav button').forEach(btn => {
                 btn.classList.remove('active');
             });
             
-            // فعال کردن دکمه مرتبط
             const activeBtn = document.querySelector(`.country-filter-nav button[onclick*="${countryCode}"]`);
             if (activeBtn) {
                 activeBtn.classList.add('active');
@@ -498,13 +473,9 @@
             updateTable();
         }
 
-
-        // --- شبیه‌سازی رفتار طبیعی سرورها (منطق اصلی) ---
-
         function simulateNaturalUpdate() {
             servers.forEach(server => {
                 
-                // 1. تغییر وضعیت تصادفی و نادر 
                 const randStatusChange = Math.random();
                 if (randStatusChange < 0.008) { 
                     if (server.status === 'Online') {
@@ -514,7 +485,6 @@
                     }
                 }
                 
-                // 2. تغییرات جزئی آپتایم
                 let uptimeFloat = parseFloat(server.uptime);
                 if (server.status === 'Online') {
                     uptimeFloat += (Math.random() * 0.005) - 0.0025; 
@@ -525,19 +495,15 @@
                 }
                 server.uptime = uptimeFloat.toFixed(3);
 
-
-                // 3. تغییرات کاربران آنلاین و پینگ
-                let userChange = Math.floor(Math.random() * 10) - 4; // نوسان بین -4 تا +5
+                let userChange = Math.floor(Math.random() * 10) - 4; 
                 server.onlineUsers = Math.max(0, server.onlineUsers + userChange);
                 
-                // **تضمین حفظ تعداد کاربران زیر 40**
                 if (server.onlineUsers > 40) {
-                     server.onlineUsers = 35 + Math.floor(Math.random() * 5); // حداکثر 40
+                     server.onlineUsers = 35 + Math.floor(Math.random() * 5); 
                 }
                 
                 if (server.status !== 'Online') server.onlineUsers = Math.floor(server.onlineUsers * 0.8); 
                 
-                // نوسان پینگ
                 const loc = ALL_LOCATIONS.find(l => l.code === server.code);
                 if (loc) {
                     const [min, max] = loc.pingRange;
@@ -545,20 +511,16 @@
                     server.ping = Math.min(max, Math.max(min, server.ping + pingChange));
                 }
                 
-                // 4. به‌روزرسانی زمان
                 server.lastUpdateMinutes = 0; 
             });
 
-            // ذخیره وضعیت جدید و زمان به‌روزرسانی
             saveServerState(); 
             updateTable(); 
 
-            // تنظیم تایمر برای 30 دقیقه بعد
             window.updateTimer = setTimeout(simulateNaturalUpdate, UPDATE_INTERVAL);
             document.getElementById('update-interval-display').textContent = `30 دقیقه دیگر`;
         }
 
-        // --- شروع کار ---
         function initializeServers() {
             const persistedData = localStorage.getItem(SERVER_DATA_KEY);
             let timeToNextUpdate = UPDATE_INTERVAL;
@@ -568,23 +530,19 @@
                 const currentTime = new Date().getTime();
                 const timeElapsed = currentTime - data.lastUpdateTime;
 
-                // بارگذاری داده‌های ذخیره شده
                 servers = data.servers;
 
                 if (timeElapsed < UPDATE_INTERVAL) {
                     timeToNextUpdate = UPDATE_INTERVAL - timeElapsed;
                 } else {
-                    // اگر داده‌ها منقضی شده‌اند، وضعیت‌ها را یک بار آپدیت کن
                     simulateNaturalUpdate(); 
                     return; 
                 }
             } else {
-                // تولید داده جدید
                 servers = generateNewServers();
                 saveServerState();
             }
 
-            // رندر اولیه و تنظیم تایمر
             setupFilterNav(); 
             updateTable();
             
@@ -593,6 +551,13 @@
 
             window.updateTimer = setTimeout(simulateNaturalUpdate, timeToNextUpdate);
         }
+
+        console.log(
+            "%c✨ Coded by skilljava", 
+            "color: #FFA726; font-size: 20px; font-weight: bold; font-family: 'Vazirmatn';"
+        );
+        console.log("✉️ Discord: skilljava");
+        console.log("🌐 https://skilljava.ir");
 
         window.onload = initializeServers;
     </script>
